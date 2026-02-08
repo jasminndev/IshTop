@@ -1,11 +1,15 @@
+import os
 from datetime import timedelta
 from os.path import join
 from pathlib import Path
 
 from django.conf import settings
 from django.conf.urls.static import static
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv()
 
 SECRET_KEY = 'django-insecure-qfx8wodevr(je7fdc@@&y*lg243fk=!f60=skta1vov$)oh@&%'
 
@@ -37,10 +41,14 @@ INSTALLED_APPS = [
     # Websocket
     'channels',
 
+    #Third-party
+    'corsheaders',
+
 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -49,6 +57,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'root.urls'
 
@@ -72,9 +82,9 @@ ASGI_APPLICATION = 'root.wsgi.application'
 WSGI_APPLICATION = 'root.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -153,5 +163,19 @@ UNFOLD = {
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,
+    }
+}
+
+# ---------------------------- Redis --------------------------------------
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
